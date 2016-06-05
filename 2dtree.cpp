@@ -220,17 +220,113 @@ Node *deletepoint(Node *root , int content)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void nodeInRange(Node *root , int lu[] , int ld[] , int rd[] , int ru[] ,unsigned int depth)
+
+bool regioncontain(int query[] , int rootregion[])
+{
+	//query order : left_x , right_x , lower_y , upper_y
+	//root region order : left_x , right_x , lower_y , upper_y
+	if(rootregion[0] >= query[0] && rootregion[0] <= query[1] &&
+	   rootregion[1] <= query[1] && rootregion[1] >= query[0] &&
+	   rootregion[2] >= query[2] && rootregion[2] <= query[3] &&
+	   rootregion[3] <= query[3] && rootregion[3] >= query[2])
+	{
+		return true;
+	}
+	else 
+		return false;
+
+}
+
+bool regionintersect(int query[] , int rootregion[])
+{
+	//query order : left_x , right_x , upper_y , lower_y
+	//root region order : left_x , right_x , upper_y , lower_y
+	if(rootregion[0] <= query[1] && rootregion[1] >= query[0] && rootregion[2] >= query[3] && rootregion[3] <= query[2])
+	{
+		return true;
+	}
+	else 
+		return false;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+void getAllNode(Node *root)
+{
+	if(root->left == NULL && root->right == NULL)
+	{
+		rangelist.push_back(root);
+		return;
+	}
+	if(root->left != NULL)
+	{
+		getAllNode(root->left);
+	}
+	if(root->right != NULL)
+	{
+		getAllNode(root->right);
+	}
+}
+
+void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int depth)
 {
 	//if the node is a leaf , check whether it is in the range
 	if(root -> left == NULL && root->right == NULL)
 	{
 		if((root->point[0] <= rd[0] && root->point[0] >= ld[0] && root->point[1] >= ld[1] && root->point[1] <= lu[1])
-			return root->point;
+		{
+			rangelist.push_back(root);
+			return;
+		}
+			
 	}
+	//root region order : left_x , right_x , upper_y , lower_y
+	//initial : left_x:0 , right_x:1 , upper_y:1 , lower_y:0
+	int flag = depth%2;
+		`	
 	if(root->left != NULL)
 	{
+		//if go to left child , change the right/upper boundry
+		//check whether to change x or y coordinate
+		if(flag == 0)
+			rootregion[1] = root->point[flag];
+		else
+			rootregion[2] = root->point[flag];
 
+		if(regioncontain(query , rootregion))
+		{
+			// return all node in the left child
+		}
+		else if(egionintersect(query , rootregion))
+		{
+			//recursively go to left child
+			nodeInRange(root->left , query , rootregion , depth + 1); 
+		}
 	}
+	if(root->right != NULL)
+	{
+		//if go to right child , change the left/lower boundry
+		//check whether to change x or y coordinate
+		if(flag == 0)
+			rootregion[0] = root->point[flag];
+		else
+			rootregion[3] = root->point[flag];
+
+		if(regioncontain(query , rootregion))
+		{
+			// return all node in the left child
+		}
+		else if(egionintersect(query , rootregion))
+		{
+			//recursively go to left child
+			nodeInRange(root->right , query , rootregion , depth + 1); 
+		}
+	}
+		
+
+
+
 
 }
