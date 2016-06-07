@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 using  namespace std;
 
 const int k=2;
@@ -299,7 +300,7 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 
 		if(regioncontain(query , rootregion))
 		{
-			// return all node in the left child
+			getAllNode(root->left);
 		}
 		else if(regionintersect(query , rootregion))
 		{
@@ -319,6 +320,7 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 		if(regioncontain(query , rootregion))
 		{
 			// return all node in the left child
+			getAllNode(root->right);
 		}
 		else if(regionintersect(query , rootregion))
 		{
@@ -328,6 +330,55 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 	}
 		
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+double distance( double query[] , double nodepoint[] )
+{
+	return pow(pow(query[0] - nodepoint[0] , 2)+pow(query[1] - nodepoint[1] , 2) , 0.5) ;
+}
+
+int *nearest(Node *root , int query[] , int currentbest[] , unsigned int depth)
+{
+	// query coordinate : x ,y
+	// if the root is NULL , terminate
+	if(root == NULL)
+		return NULL;
+
+	// get the current best distance
+	double radius = distance(query , currentbest);
+	if( distance(query , root->point) < radius )
+	{
+		currentbest = root->point;
+	}
+	if( root->left == NULL && root->right == NULL )
+		return currentbest;
+	// get dimention
+	int flag = depth%2;
+
+	//determine which side is the query point
+	if( query[flag] > root->point[flag] )
+	{
+		// in the right/upper half
+		currentbest = nearest( root->right , query , currentbest , depth + 1 );
+		// if the distance to the left plane is smaller than the distance to the current best , go to the left child
+		if( (query[flag] - root->point[flag]) < radius )
+			currentbest = nearest( root->left , query , currentbest , depth + 1 );
+	}
+	else
+	{
+		// in the left/lower half
+		currentbest = nearest( root->left , query , currentbest , depth + 1 );
+		// if the distance to the right plane is smaller than the distance to the current best
+		if( (root->point[flag] - query[flag]) < radius )
+			currentbest = nearest( root->right , query , currentbest , depth + 1);
+	}
+
+	return currentbest;
+	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
