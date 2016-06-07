@@ -10,7 +10,7 @@ struct  Node
 	Node  *left , *right;
 };
 
-vector<Node> rangelist;
+vector<Node *> rangelist;
 //////////////////////////////////////////////////////////////////////////////////////////////
 Node *newNode (int content[]) 
 {  
@@ -213,7 +213,7 @@ Node *deleteNode(Node *root, int content[] , unsigned int depth)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-Node *deletepoint(Node *root , int content)
+Node *deletepoint(Node *root , int content[])
 {
 	return deleteNode( root , content , 0);
 }
@@ -261,11 +261,13 @@ void getAllNode(Node *root)
 		return;
 	}
 	if(root->left != NULL)
-	{
+	{	
+		rangelist.push_back(root->left);
 		getAllNode(root->left);
 	}
 	if(root->right != NULL)
 	{
+		rangelist.push_back(root->right);
 		getAllNode(root->right);
 	}
 }
@@ -275,7 +277,7 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 	//if the node is a leaf , check whether it is in the range
 	if(root -> left == NULL && root->right == NULL)
 	{
-		if((root->point[0] <= rd[0] && root->point[0] >= ld[0] && root->point[1] >= ld[1] && root->point[1] <= lu[1])
+		if(root->point[0] <= query[1] && root->point[0] >= query[0] && root->point[1] >= query[3] && root->point[1] <= query[2])
 		{
 			rangelist.push_back(root);
 			return;
@@ -283,9 +285,9 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 			
 	}
 	//root region order : left_x , right_x , upper_y , lower_y
-	//initial : left_x:0 , right_x:1 , upper_y:1 , lower_y:0
+	//initial query order: left_x:0 , right_x:1 , upper_y:1 , lower_y:0
 	int flag = depth%2;
-		`	
+			
 	if(root->left != NULL)
 	{
 		//if go to left child , change the right/upper boundry
@@ -299,7 +301,7 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 		{
 			// return all node in the left child
 		}
-		else if(egionintersect(query , rootregion))
+		else if(regionintersect(query , rootregion))
 		{
 			//recursively go to left child
 			nodeInRange(root->left , query , rootregion , depth + 1); 
@@ -318,15 +320,17 @@ void nodeInRange(Node *root , int query[] , int rootregion[] , unsigned int dept
 		{
 			// return all node in the left child
 		}
-		else if(egionintersect(query , rootregion))
+		else if(regionintersect(query , rootregion))
 		{
 			//recursively go to left child
 			nodeInRange(root->right , query , rootregion , depth + 1); 
 		}
 	}
 		
+}
 
+int main()
+{
 
-
-
+	return 0;
 }
